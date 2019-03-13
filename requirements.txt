@@ -1,0 +1,2 @@
+coronaSDK==2017.3814
+texturepacker==3.4.0
