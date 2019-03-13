@@ -158,15 +158,6 @@ local function getImagePath(images, name)
 end
 
 --------------------------------------------------------------------------------
---- Gets a Tile image from a GID.
---
--- @param cache A table that stores GID, image_names, tileset_names for lookup 
--- @param id The gid to use to find tileset.
--- @return The tileset at the gid location.
---------------------------------------------------------------------------------
-local function getTileset(tilesets, id) return tilesets[id] end
-
---------------------------------------------------------------------------------
 -- Returns the name of an image file that matches a name
 --
 -- @param directory A directory to scan for the image
