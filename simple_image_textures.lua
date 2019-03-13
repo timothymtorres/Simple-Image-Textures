@@ -30,9 +30,8 @@ end
 -- @return Image sheet, frame, width, and height for texture
 --------------------------------------------------------------------------------
 function SIT.getTexture(texture_name)
-	local image_sheet, frame = getImageSheet(texture_name)
-	local width, height = getImageSize(texture_name)
-	return image_sheet, frame, width, height
+	local texture = SIT.texture_packs[texture_name]
+	return texture.sheet, texture.frame, texture.width, texture.height
 end
 
 --------------------------------------------------------------------------------
@@ -126,30 +125,6 @@ local function createImageSheet(texture_pack)
 	local options = texture_pack:getSheet()
 	local directory = texture_pack.directory 
 	return graphics.newImageSheet(directory, options)
-end
-
---------------------------------------------------------------------------------
--- Returns an image sheet
---
--- @param name The image_name to find the image sheet.
--- @return The image sheet.
--- @return The frame_index for image in image sheet.
---------------------------------------------------------------------------------   
-local function getImageSheet(texture_name)
-	local image_sheet = SIT.texture_packs[texture_name]
-	if image_sheet then return image_sheet.sheet, image_sheet.frame end
-end
-
---------------------------------------------------------------------------------
--- Returns width and height values for an image
---
--- @param cache A table that stores GID, image_names, tileset_names for lookup 
--- @param id The id of the image.
--- @return The image width and height
---------------------------------------------------------------------------------   
-local function getImageSize(texture_name)
-	local image = SIT.texture_packs[texture_name]
-	if image then return image.width, image.height end
 end
 
 return SIT
