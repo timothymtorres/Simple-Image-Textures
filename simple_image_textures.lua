@@ -74,24 +74,6 @@ local function cacheTexturePack(texture_pack)
 end
 
 --------------------------------------------------------------------------------
---- Add texturepacker sprite to a layer in the map
--- @param layer The map layer sprite will be placed in
--- @param image_name The name of image that will be used
--- @param x The x position to put image at
--- @param y The y position to put image at
--- @return A display object created from texturepacker image
---------------------------------------------------------------------------------
-function SIT:addSprite( layer, image_name, x, y )
-	layer = map:getLayer( layer )
-	local object = {
-		texture = image_name,
-		x = x,
-		y = y 
-	}
-	return createObject( self, object, layer )
-end
-
---------------------------------------------------------------------------------
 --- Create and load texture packer image sheet
 -- @param image_path The file path to the image
 -- @param lua_path The file path to the lua file
