@@ -9,7 +9,6 @@
 local lfs  = require 'lfs'  -- lfs stands for LuaFileSystem
 local SIT = {}
 SIT.texture_packs = {}
-SIT.image_sheets = {}
 
 --------------------------------------------------------------------------------
 -- Loads TexturePacker images into a table for easy use
