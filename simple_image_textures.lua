@@ -119,52 +119,6 @@ function getMatchingImage( directory, name )
 end
 
 --------------------------------------------------------------------------------
--- Creates and loads Texturepacker tilesets from directory
---
--- @param cache A table that stores GID, image_names, tileset_names for lookup 
--- @param directory A directory to scan for texturepacker lua files
--------------------------------------------------------------------------------- 
-local function loadTexturePacker( cache, directory )
-
-    local path = system.pathForFile( directory, system.ResourceDirectory ) 
-
-	for file in lfs.dir( path ) do
-
-		-- This pattern captures the name and extension of a file string
-		local file_name, extension = file:match("(.*)%.(.+)$")
-		local is_lua_file = file ~= '.' and file ~= '..' and extension == 'lua'
-
-		if is_lua_file then
-
-		    local require_path = directory .. '.' .. file_name
-
-		    -- Replace slashes with periods in require path else file won't load
-			local lua_module = require_path:gsub("[/\]", ".")
-
-			-- Using pcall to prevent any require() lua modules from crashing
-			local is_code_safe, texture_pack = pcall(require, lua_module)
-
-			local is_texturepacker_data = is_code_safe and  
-										  type(texture_pack) == 'table' and
-										  texture_pack.sheet 
-
-			if is_texturepacker_data then
-
-				local image_file_name = getMatchingImage( path, file_name )
-
-				texture_pack.directory = directory .. '/' .. image_file_name
-
-				cacheTexturePack( cache, texture_pack )
-
-			end
-
-		end
-
-	end
-
-end
-
---------------------------------------------------------------------------------
 --- Create object and add it to a layer
 -- @param object The object that will be inserted
 --------------------------------------------------------------------------------
@@ -201,7 +155,41 @@ end
 
 function SIT.new(texturepacker_dir)
 
-	loadTexturePacker(texturepacker_dir)
+    local path = system.pathForFile(directory, system.ResourceDirectory) 
+
+	for file in lfs.dir(path) do
+
+		-- This pattern captures the name and extension of a file string
+		local file_name, extension = file:match("(.*)%.(.+)$")
+		local is_lua_file = file ~= '.' and file ~= '..' and extension == 'lua'
+
+		if is_lua_file then
+
+		    local require_path = directory .. '.' .. file_name
+
+		    -- Replace slashes with periods in require path else file won't load
+			local lua_module = require_path:gsub("[/\]", ".")
+
+			-- Using pcall to prevent any require() lua modules from crashing
+			local is_code_safe, texture_pack = pcall(require, lua_module)
+
+			local is_texturepacker_data = is_code_safe and  
+										  type(texture_pack) == 'table' and
+										  texture_pack.sheet 
+
+			if is_texturepacker_data then
+
+				local image_file_name = getMatchingImage(path, file_name)
+
+				texture_pack.directory = directory .. '/' .. image_file_name
+
+				cacheTexturePack(cache, texture_pack)
+
+			end
+
+		end
+
+	end
 	
 	return SIT
 end
