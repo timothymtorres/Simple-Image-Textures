@@ -105,7 +105,7 @@ local function cacheTexturePack(texture_pack)
 
 	for image_name, i in pairs(texture_pack.frameIndex) do
 		assert(not SIT.texture_packs[texture_name],
-				"Duplicate key in cache detected")
+				"Duplicate texture image name detected")
 		
 		local image = texture_pack.sheet.frames[i]
 		SIT.texture_packs[image_name] = {
