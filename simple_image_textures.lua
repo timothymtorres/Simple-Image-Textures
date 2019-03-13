@@ -51,29 +51,6 @@ function SIT.new(directory)
 end
 
 --------------------------------------------------------------------------------
--- Creates image sheet and loads it into the cache
---
--- @param cache A table that stores GID, image_names, tileset_names for lookup 
--- @param texture_pack The sprites from a texture_pack file.
--------------------------------------------------------------------------------- 
-local function cacheTexturePack(texture_pack)
-	local sheet = createImageSheet(texture_pack)
-
-	for image_name, i in pairs(texture_pack.frameIndex) do
-		assert(not SIT.texture_packs[texture_name],
-				"Duplicate key in cache detected")
-		
-		local image = texture_pack.sheet.frames[i]
-		SIT.texture_packs[image_name] = {
-			sheet = sheet,
-			frame = i,
-			width = image.width,
-			height = image.height,
-		}
-	end
-end
-
---------------------------------------------------------------------------------
 --- Create and load texture packer image sheet
 -- @param image_path The file path to the image
 -- @param lua_path The file path to the lua file
@@ -93,6 +70,29 @@ function SIT:addTexturePack( image_path, lua_path )
 	if texture_pack then
 		texture_pack.directory = image_directory .. image_name
 		cacheTexturePack( self.cache, texture_pack )
+	end
+end
+
+--------------------------------------------------------------------------------
+-- Creates image sheet and loads it into the cache
+--
+-- @param cache A table that stores GID, image_names, tileset_names for lookup 
+-- @param texture_pack The sprites from a texture_pack file.
+-------------------------------------------------------------------------------- 
+local function cacheTexturePack(texture_pack)
+	local sheet = createImageSheet(texture_pack)
+
+	for image_name, i in pairs(texture_pack.frameIndex) do
+		assert(not SIT.texture_packs[texture_name],
+				"Duplicate key in cache detected")
+		
+		local image = texture_pack.sheet.frames[i]
+		SIT.texture_packs[image_name] = {
+			sheet = sheet,
+			frame = i,
+			width = image.width,
+			height = image.height,
+		}
 	end
 end
 
