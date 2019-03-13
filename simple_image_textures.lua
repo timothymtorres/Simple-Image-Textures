@@ -188,10 +188,8 @@ end
 local function createObject(object)
     local image
 	elseif object.texture then
-		local image_sheet, frame = getImageSheet(map.cache.texture_packs, 
-												  object.texture)
-		local width, height = getImageSize(map.cache.texture_packs, 
-											object.texture)
+		local image_sheet, frame = getImageSheet(object.texture)
+		local width, height = getImageSize(object.texture)
 		image = display.newImageRect(layer, image_sheet, frame, width, height)
 		image.x, image.y = object.x, object.y
 	return image
