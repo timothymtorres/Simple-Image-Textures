@@ -12,24 +12,34 @@ SIT.texture_packs = {}
 SIT.image_sheets = {}
 
 --------------------------------------------------------------------------------
--- Creates a table to load texturepacker images in.
+-- Loads TexturePacker images into a table for easy use
 --
--- @param directory The path to texturepacker images.
--- @return The table for loaded textures
+-- @param texture_path The path to texturepacker images. (can be directory or 
+-- image path)
+-- @param lua_path (optional) The path to match a lua file to texturepack image
 --------------------------------------------------------------------------------
 function SIT.new(texture_path, lua_path)
 	local attr = lfs.attributes(texture_path)
-
 	if attr.mode == 'directory' then loadTextures(texture_path)
 	elseif attr.mode == 'file' then loadTexturePack(texture_path, lua_path)
 	end
 end
 
 --------------------------------------------------------------------------------
+--- Retrieves texture information from SIT
+-- @param texture_name The texture data to retrieve
+-- @return Image sheet, frame, width, and height for texture
+--------------------------------------------------------------------------------
+function SIT.getTexture(texture_name)
+	local image_sheet, frame = getImageSheet(texture_name)
+	local width, height = getImageSize(texture_name)
+	return image_sheet, frame, width, height
+end
+
+--------------------------------------------------------------------------------
 -- Creates a table to load texturepacker images in.
 --
 -- @param directory The path to texturepacker images.
--- @return The table for loaded textures
 --------------------------------------------------------------------------------
 local function loadTextures(directory)
     local path = system.pathForFile(directory, system.ResourceDirectory) 
@@ -86,9 +96,8 @@ local function loadTexturePack(image_path, lua_path)
 end
 
 --------------------------------------------------------------------------------
--- Creates image sheet and loads it into the cache
+-- Creates image sheet and loads it into SIT
 --
--- @param cache A table that stores GID, image_names, tileset_names for lookup 
 -- @param texture_pack The sprites from a texture_pack file.
 -------------------------------------------------------------------------------- 
 local function cacheTexturePack(texture_pack)
@@ -109,9 +118,9 @@ local function cacheTexturePack(texture_pack)
 end
 
 --------------------------------------------------------------------------------
--- Creates an image sheet from a TexturePack/Tiled tileset and returns it
+-- Creates an image sheet from a TexturePack and returns it
 --
--- @param tileset The object which contains information about tileset.
+-- @param texture_pack The object that contains data for the image sheet
 -- @return The newly created image sheet.
 --------------------------------------------------------------------------------   
 local function createImageSheet(texture_pack)
@@ -121,15 +130,14 @@ local function createImageSheet(texture_pack)
 end
 
 --------------------------------------------------------------------------------
--- Returns an image sheet or nil
+-- Returns an image sheet
 --
--- @param cache A table that stores GID, image_names, tileset_names for lookup 
--- @param name The GID or image_name to find the image sheet.
--- @return The image sheet or nil.
+-- @param name The image_name to find the image sheet.
+-- @return The image sheet.
 -- @return The frame_index for image in image sheet.
 --------------------------------------------------------------------------------   
-local function getImageSheet(image_sheets, name)
-	local image_sheet = image_sheets[name]
+local function getImageSheet(texture_name)
+	local image_sheet = SIT.texture_packs[texture_name]
 	if image_sheet then return image_sheet.sheet, image_sheet.frame end
 end
 
@@ -155,35 +163,6 @@ end
 local function getImagePath(images, name)
 	local image = images[name]
 	if image then return image.path end
-end
-
---------------------------------------------------------------------------------
--- Returns the name of an image file that matches a name
---
--- @param directory A directory to scan for the image
--- @param name The name of the image file to look for
--- @return The image file name
--------------------------------------------------------------------------------- 
-function getMatchingImage(directory, name)
-	for image in lfs.dir(directory) do
-		-- Pattern captures the name and exension of a file
-		local image_name, extension = image:match("(.*)%.(.+)$")
-		if image_name == name and extension ~= 'lua' then return image end
-	end
-end
-
---------------------------------------------------------------------------------
---- Create object and add it to a layer
--- @param object The object that will be inserted
---------------------------------------------------------------------------------
-local function createObject(object)
-    local image
-	elseif object.texture then
-		local image_sheet, frame = getImageSheet(object.texture)
-		local width, height = getImageSize(object.texture)
-		image = display.newImageRect(layer, image_sheet, frame, width, height)
-		image.x, image.y = object.x, object.y
-	return image
 end
 
 return SIT
