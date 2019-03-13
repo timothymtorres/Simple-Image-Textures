@@ -11,8 +11,7 @@ local SIT = {}
 SIT.texture_packs = {}
 
 --------------------------------------------------------------------------------
--- Loads TexturePacker images into a table for easy use
---
+--- Loads TexturePacker images into a table for easy use
 -- @param texture_path The path to texturepacker images. (can be directory or 
 -- image path)
 -- @param lua_path (optional) The path to match a lua file to texturepack image
@@ -35,8 +34,7 @@ function SIT.getTexture(texture_name)
 end
 
 --------------------------------------------------------------------------------
--- Creates a table to load texturepacker images in.
---
+--- Creates a table to load texturepacker images in.
 -- @param directory The path to texturepacker images.
 --------------------------------------------------------------------------------
 local function loadTextures(directory)
@@ -94,8 +92,7 @@ local function loadTexturePack(image_path, lua_path)
 end
 
 --------------------------------------------------------------------------------
--- Creates image sheet and loads it into SIT
---
+--- Creates image sheet and texture data then loads it into SIT
 -- @param texture_pack The sprites from a texture_pack file.
 -------------------------------------------------------------------------------- 
 local function cacheTexturePack(texture_pack)
