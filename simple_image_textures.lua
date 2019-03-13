@@ -153,16 +153,4 @@ local function getImageSize(texture_name)
 	if image then return image.width, image.height end
 end
 
---------------------------------------------------------------------------------
--- Returns directory path for an image
---
--- @param cache A table that stores GID, image_names, tileset_names for lookup 
--- @param id The id of the image.
--- @return The image directory
---------------------------------------------------------------------------------   
-local function getImagePath(texture_name)
-	local image = SIT.texture_packs[texture_name]
-	if image then return image.path end
-end
-
 return SIT
