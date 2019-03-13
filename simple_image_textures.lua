@@ -56,7 +56,7 @@ local function loadTextures(directory)
 				texture_pack.directory = directory .. '/' .. image_file_name
 				cacheTexturePack(texture_pack)
 			end
-		elseif attr.mode == 'directory' then
+		elseif attr.mode == 'directory' then  -- search sub-directories
 			loadTextures(directory .. '/' .. file)
 		end
 	end
