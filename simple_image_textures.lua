@@ -44,11 +44,9 @@ end
 -- @param id The id of the image.
 -- @return The image width and height
 --------------------------------------------------------------------------------   
-local function getImageSize( images, id ) 
-
-	local image = images[id]
+local function getImageSize(images, name)
+	local image = images[name]
 	if image then return image.width, image.height end
-
 end
 
 --------------------------------------------------------------------------------
@@ -58,11 +56,9 @@ end
 -- @param id The id of the image.
 -- @return The image directory
 --------------------------------------------------------------------------------   
-local function getImagePath( images, id ) 
-
-	local image = images[id]
+local function getImagePath(images, name)
+	local image = images[name]
 	if image then return image.path end
-
 end
 
 --------------------------------------------------------------------------------
