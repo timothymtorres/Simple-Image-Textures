@@ -11,73 +11,6 @@ local SIT = {}
 SIT.texture_packs = {}
 
 --------------------------------------------------------------------------------
---- Loads TexturePacker images into a table for easy use
--- @param texture_path The path to texturepacker images. (can be directory or 
--- image path)
--- @param lua_path (optional) The path to match a lua file to texturepack image
---------------------------------------------------------------------------------
-function SIT.new(texture_path, lua_path)
-	local attr = lfs.attributes(texture_path)
-	if attr.mode == 'directory' then loadTextures(texture_path)
-	    local path = system.pathForFile(directory, system.ResourceDirectory) 
-
-		for file in lfs.dir(path) do
-			-- This pattern captures the name and extension of a file string
-			local file_name, extension = file:match("(.*)%.(.+)$")
-			local is_lua_file = file ~= '.' and file ~= '..' and extension == 'lua'
-
-			local attr = lfs.attributes(file)
-
-			if is_lua_file then
-			    local require_path = directory .. '.' .. file_name
-			    -- Replace slashes with periods in require path else file won't load
-				local lua_module = require_path:gsub("[/\]", ".")
-				-- Using pcall to prevent any require() lua modules from crashing
-				local is_code_safe, texture_pack = pcall(require, lua_module)
-				local is_texturepacker_data = is_code_safe and  
-											  type(texture_pack) == 'table' and
-											  texture_pack.sheet 
-
-				if is_texturepacker_data then
-					local image_file_name = getMatchingImage(path, file_name)
-					texture_pack.directory = directory .. '/' .. image_file_name
-					loadTexturePack(texture_pack)
-				end
-			elseif attr.mode == 'directory' then  -- search sub-directories
-				SIT.new(directory .. '/' .. file)
-			end
-		end
-
-	elseif attr.mode == 'file' then
-		-- Check if image exists at path and crashes if it doesn't
-		assert(system.pathForFile(image_path, system.ResourceDirectory), 
-				'Texture packer image file does not exist at "'.. image_path 
-				.. '"')
-		-- Captures directory and name from image_path
-		local image_directory, image_name = image_path:match("(.*/)(.*%..+)$")
-		-- Removes the .lua extension (if present) for lua_path
-		lua_path = lua_path:match("(.*)%..+$") or lua_path
-		-- Replace slashes with periods in require path else file won't load
-		local lua_module = lua_path:gsub("[/\]", ".")
-		local texture_pack = require(lua_module)
-		if texture_pack then
-			texture_pack.directory = image_directory .. image_name
-			loadTexturePack(texture_pack)
-		end	
-	end
-end
-
---------------------------------------------------------------------------------
---- Retrieves texture information from SIT
--- @param texture_name The texture data to retrieve
--- @return Image sheet, frame, width, and height for texture
---------------------------------------------------------------------------------
-function SIT.getTexture(texture_name)
-	local texture = SIT.texture_packs[texture_name]
-	return texture.image_sheet, texture.frame, texture.width, texture.height
-end
-
---------------------------------------------------------------------------------
 --- Creates image sheet and texture data then loads it into SIT
 -- @param texture_pack The sprites from a texture_pack file.
 -------------------------------------------------------------------------------- 
@@ -98,6 +31,71 @@ local function loadTexturePack(texture_pack)
 			height = image.height,
 		}
 	end
+end
+
+--------------------------------------------------------------------------------
+--- Returns the name of an image file that matches a name
+-- @param directory A directory to scan for the image
+-- @param name The name of the image file to look for
+-- @return The image file name
+-------------------------------------------------------------------------------- 
+function getMatchingImage(directory, name)
+	for image in lfs.dir(directory) do
+		-- Pattern captures the name and exension of a file
+		local image_name, extension = image:match("(.*)%.(.+)$")
+		if image_name == name and extension ~= 'lua' then return image end
+	end
+
+	local msg = 'Texture packer image file '..name..' does not exist inside '..
+		        'directory "'..directory.. '"'
+	assert(false, msg)
+end
+
+--------------------------------------------------------------------------------
+--- Loads TexturePacker images into a table for easy use
+-- @param directory The directory to texturepacker images.
+--------------------------------------------------------------------------------
+function SIT.new(directory)
+    local path = system.pathForFile(directory, system.ResourceDirectory) 
+
+	for file in lfs.dir(path) do
+		-- This pattern captures the name and extension of a file string
+		local file_name, extension = file:match("(.*)%.(.+)$")
+		local is_lua_file = file ~= '.' and file ~= '..' and extension == 'lua'
+
+		local attr = lfs.attributes(file)
+		local is_directory = attr.mode == 'directory'
+
+		if is_lua_file then
+		    local require_path = directory .. '.' .. file_name
+		    -- Replace slashes with periods in require path else file won't load
+			lua_path = require_path:gsub("[/\]", ".")
+			-- Using pcall to prevent any require() lua modules from crashing
+			local is_code_safe, texture_pack = pcall(require, lua_path)
+			local is_texturepacker_data = is_code_safe and  
+										  type(texture_pack) == 'table' and
+										  texture_pack.sheet 
+
+			if is_texturepacker_data then
+				local image_name = getMatchingImage(path, file_name)
+				--local image_path = directory .. '/' .. image_name
+				texture_pack.directory = directory .. image_name
+				loadTexturePack(texture_pack)
+			end
+		elseif is_directory then  -- search sub-directories
+			SIT.new(directory .. '/' .. file)
+		end
+	end
+end
+
+--------------------------------------------------------------------------------
+--- Retrieves texture information from SIT
+-- @param name The texture data to retrieve
+-- @return Image sheet, frame, width, and height for texture
+--------------------------------------------------------------------------------
+function SIT.getTexture(name)
+	local texture = SIT.texture_packs[name]
+	return texture.image_sheet, texture.frame, texture.width, texture.height
 end
 
 return SIT
