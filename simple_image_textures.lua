@@ -22,8 +22,21 @@ SIT.image_sheets = {}
 -- @param directory The path to texturepacker images.
 -- @return The table for loaded textures
 --------------------------------------------------------------------------------
+function SIT.new(texture_path, lua_path)
+	local attr = lfs.attributes(texture_path)
 
-function SIT.new(directory)
+	if attr.mode == 'directory' then loadTextures(texture_path)
+	elseif attr.mode == 'file' then loadTexturePack(texture_path, lua_path)
+	end
+end
+
+--------------------------------------------------------------------------------
+-- Creates a table to load texturepacker images in.
+--
+-- @param directory The path to texturepacker images.
+-- @return The table for loaded textures
+--------------------------------------------------------------------------------
+local function loadTextures(directory)
     local path = system.pathForFile(directory, system.ResourceDirectory) 
 
 	for file in lfs.dir(path) do
@@ -55,7 +68,7 @@ end
 -- @param image_path The file path to the image
 -- @param lua_path The file path to the lua file
 --------------------------------------------------------------------------------
-function SIT:addTexturePack( image_path, lua_path )
+local function loadTexturePack(image_path, lua_path)
 	-- Check if image exists at path and crashes if it doesn't
 	assert( system.pathForFile( image_path, system.ResourceDirectory), 
 			'Texture packer image file does not exist at "'.. image_path 
