@@ -10,7 +10,109 @@
 local lfs  = require 'lfs'  -- lfs stands for LuaFileSystem
 local SIT = {}
 SIT.texture_packs = {}
-SIT.image_sheets  = {}
+SIT.image_sheets = {}
+
+-- -------------------------------------------------------------------------- --
+--                                  METHODS                                   --	
+-- -------------------------------------------------------------------------- --
+
+--------------------------------------------------------------------------------
+-- Creates a table to load texturepacker images in.
+--
+-- @param directory The path to texturepacker images.
+-- @return The table for loaded textures
+--------------------------------------------------------------------------------
+
+function SIT.new(directory)
+    local path = system.pathForFile(directory, system.ResourceDirectory) 
+
+	for file in lfs.dir(path) do
+		-- This pattern captures the name and extension of a file string
+		local file_name, extension = file:match("(.*)%.(.+)$")
+		local is_lua_file = file ~= '.' and file ~= '..' and extension == 'lua'
+
+		if is_lua_file then
+		    local require_path = directory .. '.' .. file_name
+		    -- Replace slashes with periods in require path else file won't load
+			local lua_module = require_path:gsub("[/\]", ".")
+			-- Using pcall to prevent any require() lua modules from crashing
+			local is_code_safe, texture_pack = pcall(require, lua_module)
+			local is_texturepacker_data = is_code_safe and  
+										  type(texture_pack) == 'table' and
+										  texture_pack.sheet 
+
+			if is_texturepacker_data then
+				local image_file_name = getMatchingImage(path, file_name)
+				texture_pack.directory = directory .. '/' .. image_file_name
+				cacheTexturePack(texture_pack)
+			end
+		end
+	end
+end
+
+--------------------------------------------------------------------------------
+-- Creates image sheet and loads it into the cache
+--
+-- @param cache A table that stores GID, image_names, tileset_names for lookup 
+-- @param texture_pack The sprites from a texture_pack file.
+-------------------------------------------------------------------------------- 
+local function cacheTexturePack(texture_pack)
+	local sheet = createImageSheet(texture_pack)
+
+	for image_name, i in pairs(texture_pack.frameIndex) do
+		assert(not SIT.texture_packs[texture_name],
+				"Duplicate key in cache detected")
+		
+		local image = texture_pack.sheet.frames[i]
+		SIT.texture_packs[image_name] = {
+			sheet = sheet,
+			frame = i,
+			width = image.width,
+			height = image.height,
+		}
+	end
+end
+
+--------------------------------------------------------------------------------
+--- Add texturepacker sprite to a layer in the map
+-- @param layer The map layer sprite will be placed in
+-- @param image_name The name of image that will be used
+-- @param x The x position to put image at
+-- @param y The y position to put image at
+-- @return A display object created from texturepacker image
+--------------------------------------------------------------------------------
+function SIT:addSprite( layer, image_name, x, y )
+	layer = map:getLayer( layer )
+	local object = {
+		texture = image_name,
+		x = x,
+		y = y 
+	}
+	return createObject( self, object, layer )
+end
+
+--------------------------------------------------------------------------------
+--- Create and load texture packer image sheet
+-- @param image_path The file path to the image
+-- @param lua_path The file path to the lua file
+--------------------------------------------------------------------------------
+function SIT:addTexturePack( image_path, lua_path )
+	-- Check if image exists at path and crashes if it doesn't
+	assert( system.pathForFile( image_path, system.ResourceDirectory), 
+			'Texture packer image file does not exist at "'.. image_path 
+			.. '"' )
+	-- Captures directory and name from image_path
+	local image_directory, image_name = image_path:match("(.*/)(.*%..+)$")
+	-- Removes the .lua extension (if present) for lua_path
+	lua_path = lua_path:match("(.*)%..+$") or lua_path
+	-- Replace slashes with periods in require path else file won't load
+	local lua_module = lua_path:gsub("[/\]", ".")
+	local texture_pack = require(lua_module)
+	if texture_pack then
+		texture_pack.directory = image_directory .. image_name
+		cacheTexturePack( self.cache, texture_pack )
+	end
+end
 
 --------------------------------------------------------------------------------
 -- Creates an image sheet from a TexturePack/Tiled tileset and returns it
@@ -71,28 +173,6 @@ end
 local function getTileset( tilesets, id ) return tilesets[id] end
 
 --------------------------------------------------------------------------------
--- Creates image sheet and loads it into the cache
---
--- @param cache A table that stores GID, image_names, tileset_names for lookup 
--- @param texture_pack The sprites from a texture_pack file.
--------------------------------------------------------------------------------- 
-local function cacheTexturePack( cache, texture_pack )
-	local sheet = createImageSheet( texture_pack )
-	for image_name, i in pairs(texture_pack.frameIndex) do
-		assert( not cache.texture_packs[texture_name],
-				"Duplicate key in cache detected" 
-		)
-		local image = texture_pack.sheet.frames[i]
-		cache.texture_packs[image_name] = {
-			sheet = sheet,
-			frame = i,
-			width = image.width,
-			height = image.height,
-		}
-	end
-end
-
---------------------------------------------------------------------------------
 -- Returns the name of an image file that matches a name
 --
 -- @param directory A directory to scan for the image
@@ -121,93 +201,6 @@ local function createObject( object )
 		image = display.newImageRect( layer, image_sheet, frame, width, height )
 		image.x, image.y = object.x, object.y
 	return image
-end
-
-
--- -------------------------------------------------------------------------- --
---                                  PUBLIC METHODS                            --	
--- -------------------------------------------------------------------------- --
-
---------------------------------------------------------------------------------
--- Creates a table to load texturepacker images in.
---
--- @param directory The path to texturepacker images.
--- @return The table for loaded textures
---------------------------------------------------------------------------------
-
-function SIT.new(directory)
-    local path = system.pathForFile(directory, system.ResourceDirectory) 
-
-	for file in lfs.dir(path) do
-		-- This pattern captures the name and extension of a file string
-		local file_name, extension = file:match("(.*)%.(.+)$")
-		local is_lua_file = file ~= '.' and file ~= '..' and extension == 'lua'
-
-		if is_lua_file then
-		    local require_path = directory .. '.' .. file_name
-
-		    -- Replace slashes with periods in require path else file won't load
-			local lua_module = require_path:gsub("[/\]", ".")
-
-			-- Using pcall to prevent any require() lua modules from crashing
-			local is_code_safe, texture_pack = pcall(require, lua_module)
-
-			local is_texturepacker_data = is_code_safe and  
-										  type(texture_pack) == 'table' and
-										  texture_pack.sheet 
-
-			if is_texturepacker_data then
-				local image_file_name = getMatchingImage(path, file_name)
-
-				texture_pack.directory = directory .. '/' .. image_file_name
-
-				cacheTexturePack(cache, texture_pack)
-			end
-		end
-	end
-	
-	return SIT
-end
-
---------------------------------------------------------------------------------
---- Add texturepacker sprite to a layer in the map
--- @param layer The map layer sprite will be placed in
--- @param image_name The name of image that will be used
--- @param x The x position to put image at
--- @param y The y position to put image at
--- @return A display object created from texturepacker image
---------------------------------------------------------------------------------
-function Map:addSprite( layer, image_name, x, y )
-	layer = map:getLayer( layer )
-	local object = {
-		texture = image_name,
-		x = x,
-		y = y 
-	}
-	return createObject( self, object, layer )
-end
-
---------------------------------------------------------------------------------
---- Create and load texture packer image sheet
--- @param image_path The file path to the image
--- @param lua_path The file path to the lua file
---------------------------------------------------------------------------------
-function Map:addTexturePack( image_path, lua_path )
-	-- Check if image exists at path and crashes if it doesn't
-	assert( system.pathForFile( image_path, system.ResourceDirectory), 
-			'Texture packer image file does not exist at "'.. image_path 
-			.. '"' )
-	-- Captures directory and name from image_path
-	local image_directory, image_name = image_path:match("(.*/)(.*%..+)$")
-	-- Removes the .lua extension (if present) for lua_path
-	lua_path = lua_path:match("(.*)%..+$") or lua_path
-	-- Replace slashes with periods in require path else file won't load
-	local lua_module = lua_path:gsub("[/\]", ".")
-	local texture_pack = require(lua_module)
-	if texture_pack then
-		texture_pack.directory = image_directory .. image_name
-		cacheTexturePack( self.cache, texture_pack )
-	end
 end
 
 return SIT
