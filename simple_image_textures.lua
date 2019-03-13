@@ -69,9 +69,9 @@ end
 --------------------------------------------------------------------------------
 local function loadTexturePack(image_path, lua_path)
 	-- Check if image exists at path and crashes if it doesn't
-	assert( system.pathForFile( image_path, system.ResourceDirectory), 
+	assert(system.pathForFile(image_path, system.ResourceDirectory), 
 			'Texture packer image file does not exist at "'.. image_path 
-			.. '"' )
+			.. '"')
 	-- Captures directory and name from image_path
 	local image_directory, image_name = image_path:match("(.*/)(.*%..+)$")
 	-- Removes the .lua extension (if present) for lua_path
@@ -81,7 +81,7 @@ local function loadTexturePack(image_path, lua_path)
 	local texture_pack = require(lua_module)
 	if texture_pack then
 		texture_pack.directory = image_directory .. image_name
-		cacheTexturePack( self.cache, texture_pack )
+		cacheTexturePack(texture_pack)
 	end
 end
 
@@ -117,7 +117,7 @@ end
 local function createImageSheet(texture_pack)
 	local options = texture_pack:getSheet()
 	local directory = texture_pack.directory 
-	return graphics.newImageSheet( directory, options )
+	return graphics.newImageSheet(directory, options)
 end
 
 --------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ end
 -- @param id The gid to use to find tileset.
 -- @return The tileset at the gid location.
 --------------------------------------------------------------------------------
-local function getTileset( tilesets, id ) return tilesets[id] end
+local function getTileset(tilesets, id) return tilesets[id] end
 
 --------------------------------------------------------------------------------
 -- Returns the name of an image file that matches a name
@@ -173,8 +173,8 @@ local function getTileset( tilesets, id ) return tilesets[id] end
 -- @param name The name of the image file to look for
 -- @return The image file name
 -------------------------------------------------------------------------------- 
-function getMatchingImage( directory, name )
-	for image in lfs.dir( directory ) do
+function getMatchingImage(directory, name)
+	for image in lfs.dir(directory) do
 		-- Pattern captures the name and exension of a file
 		local image_name, extension = image:match("(.*)%.(.+)$")
 		if image_name == name and extension ~= 'lua' then return image end
@@ -185,14 +185,14 @@ end
 --- Create object and add it to a layer
 -- @param object The object that will be inserted
 --------------------------------------------------------------------------------
-local function createObject( object )
+local function createObject(object)
     local image
 	elseif object.texture then
-		local image_sheet, frame = getImageSheet( map.cache.texture_packs, 
-												  object.texture )
-		local width, height = getImageSize( map.cache.texture_packs, 
-											object.texture )
-		image = display.newImageRect( layer, image_sheet, frame, width, height )
+		local image_sheet, frame = getImageSheet(map.cache.texture_packs, 
+												  object.texture)
+		local width, height = getImageSize(map.cache.texture_packs, 
+											object.texture)
+		image = display.newImageRect(layer, image_sheet, frame, width, height)
 		image.x, image.y = object.x, object.y
 	return image
 end
