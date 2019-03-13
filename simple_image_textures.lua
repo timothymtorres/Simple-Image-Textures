@@ -77,26 +77,19 @@ local function getTileset( tilesets, id ) return tilesets[id] end
 -- @param texture_pack The sprites from a texture_pack file.
 -------------------------------------------------------------------------------- 
 local function cacheTexturePack( cache, texture_pack )
-
 	local sheet = createImageSheet( texture_pack )
-
 	for image_name, i in pairs(texture_pack.frameIndex) do
-
 		assert( not cache.texture_packs[texture_name],
 				"Duplicate key in cache detected" 
 		)
-
 		local image = texture_pack.sheet.frames[i]
-
 		cache.texture_packs[image_name] = {
 			sheet = sheet,
 			frame = i,
 			width = image.width,
 			height = image.height,
 		}
-
 	end
-
 end
 
 --------------------------------------------------------------------------------
@@ -107,15 +100,11 @@ end
 -- @return The image file name
 -------------------------------------------------------------------------------- 
 function getMatchingImage( directory, name )
-
 	for image in lfs.dir( directory ) do
-
 		-- Pattern captures the name and exension of a file
 		local image_name, extension = image:match("(.*)%.(.+)$")
 		if image_name == name and extension ~= 'lua' then return image end
-
 	end
-
 end
 
 --------------------------------------------------------------------------------
@@ -123,22 +112,15 @@ end
 -- @param object The object that will be inserted
 --------------------------------------------------------------------------------
 local function createObject( object )
-
     local image
-
 	elseif object.texture then
-
 		local image_sheet, frame = getImageSheet( map.cache.texture_packs, 
 												  object.texture )
-
 		local width, height = getImageSize( map.cache.texture_packs, 
 											object.texture )
-
 		image = display.newImageRect( layer, image_sheet, frame, width, height )
 		image.x, image.y = object.x, object.y
-
 	return image
-
 end
 
 
@@ -149,11 +131,11 @@ end
 --------------------------------------------------------------------------------
 -- Creates a table to load texturepacker images in.
 --
--- @param texturepacker_dir The path to texturepacker images.
+-- @param directory The path to texturepacker images.
 -- @return The table for loaded textures
 --------------------------------------------------------------------------------
 
-function SIT.new(texturepacker_dir)
+function SIT.new(directory)
     local path = system.pathForFile(directory, system.ResourceDirectory) 
 
 	for file in lfs.dir(path) do
@@ -196,17 +178,13 @@ end
 -- @return A display object created from texturepacker image
 --------------------------------------------------------------------------------
 function Map:addSprite( layer, image_name, x, y )
-
 	layer = map:getLayer( layer )
-
 	local object = {
 		texture = image_name,
 		x = x,
 		y = y 
 	}
-
 	return createObject( self, object, layer )
-
 end
 
 --------------------------------------------------------------------------------
@@ -215,29 +193,21 @@ end
 -- @param lua_path The file path to the lua file
 --------------------------------------------------------------------------------
 function Map:addTexturePack( image_path, lua_path )
-
 	-- Check if image exists at path and crashes if it doesn't
 	assert( system.pathForFile( image_path, system.ResourceDirectory), 
 			'Texture packer image file does not exist at "'.. image_path 
 			.. '"' )
-
 	-- Captures directory and name from image_path
 	local image_directory, image_name = image_path:match("(.*/)(.*%..+)$")
-
 	-- Removes the .lua extension (if present) for lua_path
 	lua_path = lua_path:match("(.*)%..+$") or lua_path
-
 	-- Replace slashes with periods in require path else file won't load
 	local lua_module = lua_path:gsub("[/\]", ".")
 	local texture_pack = require(lua_module)
-
 	if texture_pack then
-
 		texture_pack.directory = image_directory .. image_name
 		cacheTexturePack( self.cache, texture_pack )
-
 	end
-
 end
 
 return SIT
