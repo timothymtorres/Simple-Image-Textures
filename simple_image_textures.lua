@@ -28,15 +28,13 @@ end
 -- Returns an image sheet or nil
 --
 -- @param cache A table that stores GID, image_names, tileset_names for lookup 
--- @param id The GID or image_name to find the image sheet.
+-- @param name The GID or image_name to find the image sheet.
 -- @return The image sheet or nil.
 -- @return The frame_index for image in image sheet.
 --------------------------------------------------------------------------------   
-local function getImageSheet( image_sheets, id )
- 
-	local image_sheet = image_sheets[id]
+local function getImageSheet(image_sheets, name)
+	local image_sheet = image_sheets[name]
 	if image_sheet then return image_sheet.sheet, image_sheet.frame end
-
 end
 
 --------------------------------------------------------------------------------
