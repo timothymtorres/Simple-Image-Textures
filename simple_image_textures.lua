@@ -18,53 +18,10 @@ SIT.image_sheets  = {}
 -- @param tileset The object which contains information about tileset.
 -- @return The newly created image sheet.
 --------------------------------------------------------------------------------   
-local function createImageSheet( tileset )
-
-	local options, name
-
-	if tileset.image then -- Tiled tileset
-
-		local tsiw,   tsih    = tileset.image_width, tileset.image_height
-		local margin, spacing = tileset.margin,     tileset.spacing
-		local w,      h       = tileset.tilewidth,  tileset.tileheight
-
-		name = tileset.image
-		options = {
-			frames             = {},
-			sheetContentWidth  = tsiw,
-			sheetContentHeight = tsih,
-		}
-
-		local frames = options.frames
-		local tileset_height    = tileset.tilecount / tileset.columns 
-		local tileset_width     = tileset.columns 
-
-		for j=1, tileset_height do
-
-		  for i=1, tileset_width do
-
-		    local element = {
-				x      = ( i - 1 ) * ( w + spacing ) + margin,
-				y      = ( j - 1 ) *( h + spacing ) + margin,
-				width  = w,
-				height = h,
-		    }
-
-		    frames[#frames + 1] = element
-
-		  end
-
-		end
-
-	elseif tileset.sheet then -- TexturePacker tileset
-
-		options = tileset:getSheet()
-
-	end
-
-	local directory = tileset.directory .. ( name or '' ) 
+local function createImageSheet(texture_pack)
+	local options = texture_pack:getSheet()
+	local directory = texture_pack.directory 
 	return graphics.newImageSheet( directory, options )
-
 end
 
 --------------------------------------------------------------------------------
