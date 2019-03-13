@@ -148,8 +148,8 @@ end
 -- @param id The id of the image.
 -- @return The image width and height
 --------------------------------------------------------------------------------   
-local function getImageSize(images, name)
-	local image = images[name]
+local function getImageSize(texture_name)
+	local image = SIT.texture_packs[texture_name]
 	if image then return image.width, image.height end
 end
 
@@ -160,8 +160,8 @@ end
 -- @param id The id of the image.
 -- @return The image directory
 --------------------------------------------------------------------------------   
-local function getImagePath(images, name)
-	local image = images[name]
+local function getImagePath(texture_name)
+	local image = SIT.texture_packs[texture_name]
 	if image then return image.path end
 end
 
