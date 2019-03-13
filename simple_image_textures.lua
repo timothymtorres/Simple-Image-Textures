@@ -6,15 +6,10 @@
 -- -------------------------------------------------------------------------- --
 --                                  MODULE                                    --												
 -- -------------------------------------------------------------------------- --
-
 local lfs  = require 'lfs'  -- lfs stands for LuaFileSystem
 local SIT = {}
 SIT.texture_packs = {}
 SIT.image_sheets = {}
-
--- -------------------------------------------------------------------------- --
---                                  METHODS                                   --	
--- -------------------------------------------------------------------------- --
 
 --------------------------------------------------------------------------------
 -- Creates a table to load texturepacker images in.
@@ -44,6 +39,8 @@ local function loadTextures(directory)
 		local file_name, extension = file:match("(.*)%.(.+)$")
 		local is_lua_file = file ~= '.' and file ~= '..' and extension == 'lua'
 
+		local attr = lfs.attributes(file)
+
 		if is_lua_file then
 		    local require_path = directory .. '.' .. file_name
 		    -- Replace slashes with periods in require path else file won't load
@@ -59,6 +56,8 @@ local function loadTextures(directory)
 				texture_pack.directory = directory .. '/' .. image_file_name
 				cacheTexturePack(texture_pack)
 			end
+		elseif attr.mode == 'directory' then
+			loadTextures(directory .. '/' .. file)
 		end
 	end
 end
