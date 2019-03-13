@@ -31,7 +31,7 @@ end
 --------------------------------------------------------------------------------
 function SIT.getTexture(texture_name)
 	local texture = SIT.texture_packs[texture_name]
-	return texture.sheet, texture.frame, texture.width, texture.height
+	return texture.image_sheet, texture.frame, texture.width, texture.height
 end
 
 --------------------------------------------------------------------------------
@@ -99,7 +99,9 @@ end
 -- @param texture_pack The sprites from a texture_pack file.
 -------------------------------------------------------------------------------- 
 local function cacheTexturePack(texture_pack)
-	local sheet = createImageSheet(texture_pack)
+	local options = texture_pack:getSheet()
+	local directory = texture_pack.directory 
+	local image_sheet = graphics.newImageSheet(directory, options)
 
 	for image_name, i in pairs(texture_pack.frameIndex) do
 		assert(not SIT.texture_packs[texture_name],
@@ -107,24 +109,12 @@ local function cacheTexturePack(texture_pack)
 		
 		local image = texture_pack.sheet.frames[i]
 		SIT.texture_packs[image_name] = {
-			sheet = sheet,
+			image_sheet = image_sheet,
 			frame = i,
 			width = image.width,
 			height = image.height,
 		}
 	end
-end
-
---------------------------------------------------------------------------------
--- Creates an image sheet from a TexturePack and returns it
---
--- @param texture_pack The object that contains data for the image sheet
--- @return The newly created image sheet.
---------------------------------------------------------------------------------   
-local function createImageSheet(texture_pack)
-	local options = texture_pack:getSheet()
-	local directory = texture_pack.directory 
-	return graphics.newImageSheet(directory, options)
 end
 
 return SIT
