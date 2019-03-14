@@ -16,7 +16,7 @@ SIT.texture_packs = {}
 -------------------------------------------------------------------------------- 
 local function loadTexturePack(texture_pack)
 	local options = texture_pack:getSheet()
-	local directory = texture_pack.directory 
+	local directory = texture_pack.directory
 	local image_sheet = graphics.newImageSheet(directory, options)
 
 	for image_name, i in pairs(texture_pack.frameIndex) do
@@ -63,8 +63,8 @@ function SIT.new(directory)
 		local file_name, extension = file:match("(.*)%.(.+)$")
 		local is_lua_file = file ~= '.' and file ~= '..' and extension == 'lua'
 
-		local attr = lfs.attributes(file)
-		local is_directory = attr.mode == 'directory'
+		local attr = lfs.attributes(path..'/'..file)
+		local is_directory = file ~= '.' and file ~= '..' and attr.mode == 'directory'
 
 		if is_lua_file then
 		    local require_path = directory .. '.' .. file_name
@@ -79,7 +79,7 @@ function SIT.new(directory)
 			if is_texturepacker_data then
 				local image_name = getMatchingImage(path, file_name)
 				--local image_path = directory .. '/' .. image_name
-				texture_pack.directory = directory .. image_name
+				texture_pack.directory = directory .. '/' .. image_name
 				loadTexturePack(texture_pack)
 			end
 		elseif is_directory then  -- search sub-directories
