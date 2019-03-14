@@ -1,22 +1,23 @@
 #Simple Image Textures
 
-*Simple Image Textures* (SIT) is a library used to quickly load image sheets into CoronaSDK with [TexturePacker]().  Instead of having to manually load each individual image sheet into a project, this library loads them all into a table for easy access.  Just point SIT to the directory(s) where the resources are located and it does all the heavy lifting.
+*Simple Image Textures* (SIT) is a library used to quickly load image sheets into CoronaSDK with [TexturePacker](https://www.codeandweb.com/texturepacker).  Instead of having to manually load each individual image sheet into a project, this library loads them all into a table for easy access.  Just point SIT to the directory(s) where the resources are located and it does all the heavy lifting.
 
-I created SIT initially as a added feature for another library called [Berry]().  After the feature was added, I decided to also make it into a stand alone tool that other developers (hopefully) might find useful.
+I created SIT initially as a added feature for another library called [Berry](https://github.com/ldurniat/Berry).  After the feature was added, I decided to also make it into a stand alone tool that other developers (hopefully) might find useful.
 
 ### Quick Start Guide
 
 ```lua
 local SIT = require('simple_image_textures')
-local resources = SIT.new(texturepacker_directory)
+SIT.new(directory)  -- ie. graphics/images/stuff
+
+image = display.newImageRect( SIT.getTexture(texture_name) )
+image.x, image.y = 100, 100
 ```
 
-### texturePackerDirectory
+### SIT.new(directory)
 
-There are several ways sprites can be loaded with SIT.
+SIT will scan through the given directory and all sub-directories for Texturepacker files and load them.  **Both the matching Texturepacker image and lua files provided must have the same name and be in the same directory**.
 
-1.  Place the TexturePacker images and lua files inside the same directory as `texturepacker_directory` and it will load them automatically 
-2.  Use `SIT.addTexturePack( image_path, lua_path )` to load each texture pack individually.
+### SIT.getTexture(name)
 
-Method 1 assumes by default that the image file and the lua file have the same name.  (ex.  items.png and items.lua)  If the files are named differently from one another, then the textures will need to be loaded via method 2.  (ex.  items.png and weapons.lua) 
-
+This returns an image sheet, frame, width, and height for a texturepack image.  Simply pass the name of the image to the method like so: `display.newImageRect( SIT.getTexture('crowbar'))` (assuming image is named crowbar.png) and you will have a quick image to load.  No need to deal with multiple image sheets, sizes, or frames.
